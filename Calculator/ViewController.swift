@@ -11,7 +11,7 @@ import UIKit
 class ViewController: UIViewController {
 
     @IBOutlet weak var display: UILabel!
-    var userIsInTheMiddleOfANumber: Bool = false
+    var userIsInTheMiddleOfANumber = false
     
     @IBAction func appendDigits(sender: UIButton) {
         let digit = sender.currentTitle! //remove the optiona it means if not set the app crashes
@@ -27,6 +27,69 @@ class ViewController: UIViewController {
         
         
     }
+    
+    @IBAction func operate(sender: UIButton) {
+        let operation = sender.currentTitle!
+        if userIsInTheMiddleOfANumber{
+            enter()
+        }
+        switch operation {
+            case "×": performOperation {$0 * $1}
+            /*
+            this is the closure for (Double, Double) -> Double)
+            instead of 
+            func multiply(op1: Double, op2 Double) -> Double{
+                return op1 * op2
+            }
+            or long closure
+            case "×": performOperation({op1: Double, op2 Double) -> Double in
+                return op1 * op2
+            })
+            
+            */
+            case "÷": performOperation {$1 / $0}
+            case "+": performOperation {$0 + $1}
+            case "-": performOperation {$1 - $0}
+            case "√": performOperation {sqrt($0)}
+            
+            default: break
+        }
+    }
+    
+    private func performOperation(operation: (Double, Double) -> Double) {
+        if operandStack.count >= 2 {
+            displayValue = operation(operandStack.removeLast(), operandStack.removeLast())
+            enter()
+        }
+    }
+    
+    private func performOperation(operation: Double -> Double) {
+        if operandStack.count >= 1 {
+            displayValue = operation(operandStack.removeLast())
+            enter()
+        }
+    }
+    
+    
+    var operandStack = Array<Double>()
+    
+    @IBAction func enter() {
+        userIsInTheMiddleOfANumber = false
+        operandStack.append(displayValue);
+        print("operand Stack = \(operandStack)")
+        
+    }
+    
+    var displayValue: Double {
+        get{
+            return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
+        }
+        set{
+            display.text = "\(newValue)"
+            userIsInTheMiddleOfANumber = false
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
